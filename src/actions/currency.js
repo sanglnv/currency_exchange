@@ -29,9 +29,9 @@ export const fetchCurrencyRatesSuccess = (rates) => ({
 
 export const CHANGE_INPUT_CURRENCY = 'CHANGE_INPUT_CURRENCY';
 export const CHANGE_OUTPUT_CURRENCY = 'CHANGE_OUTPUT_CURRENCY';
-export const changeCurrency = (inType, currency) => ({
+export const changeCurrency = (inType, currencyType) => ({
   type: inType && inType === 'input' && CHANGE_INPUT_CURRENCY || CHANGE_OUTPUT_CURRENCY,
-  currency
+  [inType && inType === 'input' && 'inType' || 'outType']: currencyType
 });
 
 

@@ -10,40 +10,53 @@ import {
   Panel,
   PageHeader,
   FormGroup,
-  FormControl,
+  FormControl
 } from 'react-bootstrap';
 import CurrencySelection from './CurrencySelection';
 import {changeCurrency, changeCurrencyValue, fetchCurrencyRates} from "../actions/currency";
+import { selectOptions } from './../utils';
+import loading from './../loading.svg'
 
 class Home extends Component {
-  constructor(props) {
-    super(props);
+  shouldComponentUpdate(nextProps) {
+    const {input, output, inType, outType, isFetching} = this.props;
+    return nextProps.input != input || nextProps.output != output || nextProps.inType != inType || nextProps.outType != outType || nextProps.isFetching != isFetching;
   }
 
   componentDidMount() {
-    const { outType, fetchData } = this.props;
-    fetchData(`http://api.fixer.io/latest?base=${outType}`);
+    this.fetchRates();
   }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.inType != this.props.inType || prevProps.outType != this.props.outType)
+      this.fetchRates();
+  }
+
+  fetchRates = () => {
+    const { inType, fetchData } = this.props;
+    fetchData(`http://api.fixer.io/latest?base=${inType}`)
+  };
+
+  renderLoading = () => (
+    <div className="App-loading">
+      <img src={loading} className="image" alt="loading" />
+    </div>
+  )
 
   render() {
     const {
-      input,
-      output,
-      inType,
-      outType,
-      changeCurrency,
-      changeCurrencyValue,
-      rates
+      input, output, inType, outType, changeCurrency, changeCurrencyValue, rates, isFetching
     } = this.props;
-    console.log(input, output, inType, outType, rates);
+    console.log('isFetching', isFetching)
     return (
       <Grid>
         <Row>
-          <Col sm={6}>
-            <Panel>
+          <Col sm={6} className="App-home">
+            <Panel style={{position: 'relative'}}>
+              {isFetching ? this.renderLoading() : null}
               <PageHeader>
-                <small>1 Vietnamese Dong equals</small>
-                <p>0.000044 US Dollar</p>
+                <small>{input} {selectOptions[selectOptions.findIndex(o => o.value == inType)].label} equals</small>
+                <p>{output.toFixed(4)} {selectOptions[selectOptions.findIndex(o => o.value == outType)].label}</p>
               </PageHeader>
               <form>
                 <Row>
@@ -54,10 +67,7 @@ class Home extends Component {
                           <FormControl
                             type="text"
                             value={input}
-                            onChange={(e) => {
-                              console.log('onChange', e.target.value)
-                              changeCurrencyValue(e.target.value)
-                            }}
+                            onChange={(e) => changeCurrencyValue(e.target.value)}
                           />
                         </FormGroup>
                       </Col>
@@ -70,7 +80,7 @@ class Home extends Component {
                     <Row>
                       <Col sm={6}>
                         <FormGroup>
-                          <FormControl type="text" readOnly defaultValue={output}
+                          <FormControl type="text" readOnly value={Number(output.toFixed(1))}
                           />
                         </FormGroup>
                       </Col>
@@ -92,9 +102,9 @@ class Home extends Component {
   }
 }
 
-const mapStateToProps = ({currency: {input, output, inType, outType, rates}}) => ({input, output, inType, outType, rates});
+const mapStateToProps = ({currency: {input, output, inType, outType, rates, isFetching}}) => ({input, output, inType, outType, rates, isFetching});
 const mapDispatchToProps = (dispatch) => ({
-  changeCurrency: (value) => dispatch(changeCurrency(value)),
+  changeCurrency: (inType, currencyType) => dispatch(changeCurrency(inType, currencyType)),
   changeCurrencyValue: (value) => dispatch(changeCurrencyValue(value)),
   fetchData: (url) => dispatch(fetchCurrencyRates(url))
 });

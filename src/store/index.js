@@ -3,13 +3,14 @@
  */
 import { createStore as _createStore , applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
+import logger from 'redux-logger'
 import rootReducers from './../reducers';
 import Registry from './registry';
 import registryMiddleware from './registry/middleware';
 
 export default (initialState = {}) => {
   const registry = new Registry(rootReducers);
-  const middlewares = [thunk, registryMiddleware(registry)];
+  const middlewares = [thunk, logger, registryMiddleware(registry)];
   let finalCreateStore = applyMiddleware(...middlewares);
 
   // If we have redux devtools installed then hook into it
