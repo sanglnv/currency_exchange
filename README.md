@@ -1,5 +1,6 @@
 ## Table of Contents
 
 - [Available Scripts](#available-scripts)
-  - [npm start](#npm-start)
-  - [npm test](#npm-test)
+  - [npm run serve](#npm-start)
+  - [npm run test](#npm-test)
+  - [npm run build](#npm-build)
